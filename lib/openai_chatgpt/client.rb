@@ -63,7 +63,8 @@ module OpenaiChatgpt
       presence_penalty: 0,
       frequency_penalty: 0,
       logit_bias: {},
-      user: ""
+      user: "",
+      bot_id: nil
     )
       Response.new post("", {
         model: model,
@@ -77,7 +78,8 @@ module OpenaiChatgpt
         presence_penalty: presence_penalty,
         frequency_penalty: frequency_penalty,
         logit_bias: logit_bias,
-        user: user
+        user: user,
+        bot_id: bot_id
       }.to_json)
     end
 
@@ -85,7 +87,7 @@ module OpenaiChatgpt
 
     # makes a get request to the given path with params
     def post(path, params = {})
-      handle_response connection.post(path, params)
+      handle_response connection(params: params).post(path, params)
     end
 
     # handles the response from the api and raises error if any
@@ -98,10 +100,13 @@ module OpenaiChatgpt
     end
 
     # creates a faraday connection with base url and api_key
-    def connection
+    def connection(params: {})
       @connection ||= Faraday.new(BASE_URL) do |conn|
         conn.headers["Authorization"] = "Bearer #{@api_key}"
         conn.headers["Content-Type"] = "application/json"
+        if params[:bot_id]
+          conn.headers["Content-Type"] = "application/json"
+        end
         conn.options.timeout = @request_timeout
         conn.response :json, content_type: "application/json"
         conn.adapter adapter, @stubs
