@@ -105,7 +105,7 @@ module OpenaiChatgpt
         conn.headers["Authorization"] = "Bearer #{@api_key}"
         conn.headers["Content-Type"] = "application/json"
         if params[:bot_id]
-          conn.headers["Content-Type"] = "application/json"
+          conn.headers["X-Bot-Identifier"] = params[:bot_id]
         end
         conn.options.timeout = @request_timeout
         conn.response :json, content_type: "application/json"
